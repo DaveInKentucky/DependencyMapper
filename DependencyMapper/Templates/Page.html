@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>{{rootdir}}</title>
+    <style type="text/css">
+        html {
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
+        :link, :visited {
+            text-decoration: none;
+            color: blue;
+        }
+        #toc {
+            columns: 3;
+            -moz-columns: 3;
+            -webkit-columns: 3;
+        }
+        .orphan {
+            color: red;
+        }
+        .nonexistant {
+            color: magenta;
+        }
+        .nonexistant-deps {
+            color: orange;
+        }
+        .direct-dll {
+            color: lime;
+        }
+        #key {
+            list-style: none;
+            overflow: auto;
+            padding: 0;
+        }
+        #key li {
+            float: left;
+            margin-right: 1em;
+        }
+    </style>
+    <script type="text/javascript">
+        "use strict";
+
+        window.onload = function () {
+            var filterInput = document.getElementById("filter");
+            filterInput.value = "";
+            filterInput.oninput = filterItems;
+
+            var resetFilterButton = document.getElementById("reset-filter");
+            resetFilterButton.onclick = resetFilter;
+
+            var caseSensitiveCheckbox = document.getElementById("case-sensitive");
+            caseSensitiveCheckbox.checked = false;
+            caseSensitiveCheckbox.onclick = filterItems;
+
+            var filterOnPathCheckbox = document.getElementById("filter-on-path");
+            filterOnPathCheckbox.checked = false;
+            filterOnPathCheckbox.onclick = filterItems;
+        };
+
+        function filterItems() {
+            var isCaseSensitive = document.getElementById("case-sensitive").checked;
+            var filterOnPath = document.getElementById("filter-on-path").checked;
+
+            var filterText = document.getElementById("filter").value;
+            if (!isCaseSensitive)
+                filterText = filterText.toLowerCase();
+
+            var toc = document.getElementById("toc");
+            for (var i = 0; i < toc.children.length; i++) {
+                var li = toc.children[i];
+
+                var textToSearch;
+                if (filterOnPath)
+                    textToSearch = li.children[0].title;
+                else
+                    textToSearch = li.children[0].textContent;
+
+                if (!isCaseSensitive)
+                    textToSearch = textToSearch.toLowerCase();
+
+                if (filterText == "" || textToSearch.indexOf(filterText) > -1)
+                    li.style.display = null;
+                else
+                    li.style.display = "none";
+            }
+        }
+
+        function resetFilter() {
+            document.getElementById("filter").value = "";
+            var toc = document.getElementById("toc");
+            for (var i = 0; i < toc.children.length; i++)
+                toc.children[i].style.display = null;
+        }
+    </script>
+</head>
+    <body>
+        <h1>{{rootdir}}</h1>
+        <p>{{numsolutions}} solutions, {{numprojects}} projects, {{numdlls}} DLLs</p>
+        <ul id="key">
+            <li><span class="orphan">&#9632;</span> Orphaned</li>
+            <li><span class="nonexistant">&#9632;</span> Non-existant</li>
+            <li><span class="nonexistant-deps">&#9632;</span> Non-existant dependencies</li>
+            <li><span class="direct-dll">&#9632;</span> <span title="e.g., in Build/ or Release/, not the project" style="border-bottom: 1px dotted black;">Direct</span> DLL reference</li>
+        </ul>
+        <div>
+            <input type="text" id="filter" placeholder="Filter" />
+            <button id="reset-filter">Reset</button>
+            <label><input type="checkbox" id="case-sensitive" />Case sensitive</label>
+            <label><input type="checkbox" id="filter-on-path" />Filter on path</label>
+        </div>
+        <ul id="toc">{{toc}}</ul>
+        <h1>Solutions</h1>
+        {{solutions}}
+        <h1>Projects</h1>
+        {{projects}}
+        <h1>DLLs</h1>
+        {{dlls}}
+    </body>
+</html>
